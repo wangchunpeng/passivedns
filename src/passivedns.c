@@ -252,11 +252,11 @@ void parse_ip4(packetinfo *pi)
             prepare_udp(pi);
             parse_udp(pi);
             break;
-        case IP_PROTO_IP4:
+        case IP_PROTO_IP4: /* IP option pseudo header for BEET */
             prepare_ip4ip(pi);
             break;
         case IP_PROTO_IP6:
-            prepare_ip4ip(pi);
+            prepare_ip4ip(pi);  /* IPv6-in-IPv4 tunnelling      */ 
             break;
         default:
             break;
@@ -555,6 +555,7 @@ connection *cxt_new(packetinfo *pi)
 
 int cxt_update_client(connection *cxt, packetinfo *pi)
 {
+    dlog("enter cxt_update_client !!!");
     cxt->last_pkt_time = pi->pheader->ts.tv_sec;
 
     if (pi->tcph)
@@ -576,6 +577,8 @@ int cxt_update_client(connection *cxt, packetinfo *pi)
 
 int cxt_update_unknown(connection *cxt, packetinfo *pi)
 {
+    dlog("enter cxt_update_unknown !!!");
+    
     cxt->last_pkt_time = pi->pheader->ts.tv_sec;
 
     if (pi->tcph)
@@ -597,6 +600,8 @@ int cxt_update_unknown(connection *cxt, packetinfo *pi)
 
 int cxt_update_server(connection *cxt, packetinfo *pi)
 {
+    dlog("enter cxt_update_server !!!");
+    
     cxt->last_pkt_time = pi->pheader->ts.tv_sec;
 
     if (pi->tcph)

@@ -104,8 +104,40 @@ void dns_parser(packetinfo *pi)
        return;
     }
 
+    /*parse and recode edns config*/
+    pi->edns_flag = 0;
+    if (dns_pkt->_edns_udp_size == 0){
+        dlog(" [D] DNS packet with no edns section\n");
+    }
+    else{
+        if (dns_pkt->_edns_data){
+            dlog("parse edns data!\n");
+            
+            pedns_data *edns_data = (pedns_data*)(dns_pkt->_edns_data->_data);
+            int index = 0 ;
+            
+            for (index =0 ; index < dns_pkt->_edns_data->_size; index++)
+            {
+                dlog("[D] EDNS data index = %d, data = %x \n", index, *((uint8_t *)(dns_pkt->_edns_data->_data) + index));
+            }
+            
+            uint16_t af = ntohs(edns_data->af);
+            dlog("[D] ENDS af = %u \n", af);
+            if (af == 1 && edns_data->opt_length >= 8)
+            {
+                dlog("[D] makeup EDNS ip\n");
+                pi->edns_flag = 1;
+                snprintf(pi->rcip, sizeof(pi->rcip)-1, "%u.%u.%u.%u", edns_data->ipdata[0], edns_data->ipdata[1], \
+                    edns_data->ipdata[2], edns_data->ipdata[3]);
+                dlog("[D] EDNS ip %s",(char *)(pi->rcip));
+                
+            }
+        }
+    }
+
     /* We only care about answers when we record data */
     if (ldns_pkt_qr(dns_pkt)) {
+        /* here qr indicate pi is a reponse packet */
         /* In situations where the first packet seen is a server response, the
         client/server determination is incorrectly marked as an SC_CLIENT session
         prior to the parsing of the DNS payload.  In high bandwidth data centers
@@ -620,6 +652,13 @@ void update_pdns_record_asset(packetinfo *pi, pdns_record *pr,
          rdomain_name);
 
     pr->passet = passet;
+    passet->edns_flag = 0;
+    if (pi->edns_flag)
+    {
+        passet->edns_flag = 1;
+        memset(passet->rcip, 0, sizeof(passet->rcip));
+        memcpy(passet->rcip, pi->rcip, sizeof(passet->rcip));
+    }
 
     print_passet(pr, passet, passet->rr, NULL, 0);
 }
@@ -1054,6 +1093,13 @@ void print_passet(pdns_record *l, pdns_asset *p, ldns_rr *rr,
             if (offset != 0)
                 offset += snprintf(output+offset, sizeof(buffer) - offset, "%s", d);
             offset += snprintf(output+offset, sizeof(buffer) - offset, "%s", ip_addr_c);
+
+            if (offset != 0)
+                offset += snprintf(output+offset, sizeof(buffer) - offset, "%s", d);
+            if (!is_err_record && p && p->edns_flag == 1)
+                offset += snprintf(output+offset, sizeof(buffer) - offset, "%s", p->rcip);
+            else
+                offset += snprintf(output+offset, sizeof(buffer) - offset, "%s", ip_addr_c);
         }
 
         /* Print server IP */

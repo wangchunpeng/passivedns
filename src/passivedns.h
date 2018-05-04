@@ -396,6 +396,8 @@ typedef struct _packetinfo {
     uint32_t        plen;             /* Transport payload length */
     uint32_t        our;              /* Is the asset in our defined network */
     uint8_t         up;               /* Set if the asset has been updated */
+    uint8_t         rcip[48];
+    uint8_t         edns_flag;
     connection      *cxt;             /* Pointer to the cxt for this packet */
 } packetinfo;
 
@@ -557,7 +559,7 @@ typedef struct _globalconfig {
 #define plog(fmt, ...) do{ fprintf(stdout, (fmt), ##__VA_ARGS__); }while(0)
 #define flog(h, fmt, ...) do{ fprintf(h, fmt, ##__VA_ARGS__); }while(0)
 #define olog(fmt, ...) do{ if(!(ISSET_CONFIG_QUIET(config))) fprintf(stdout, (fmt), ##__VA_ARGS__); }while(0)
-//#define DEBUG 1
+#define DEBUG 1
 #ifdef DEBUG
 #define dlog(fmt, ...) do { fprintf(stderr, ("[%s:%d(%s)] " fmt), __FILE__, __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__);} while(0)
 #define vlog(v, fmt, ...) do{ if(DEBUG == v) fprintf(stderr, ("[%s:%d(%s)] " fmt), __FILE__, __LINE__, __PRETTY_FUNCTION__, ##__VA_ARGS__); }while(0)

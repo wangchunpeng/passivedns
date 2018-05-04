@@ -137,6 +137,8 @@ typedef struct _pdns_asset {
     uint32_t               af;         /* IP version (4/6) AF_INET */
     struct in6_addr        sip;        /* DNS Server IP (v4/6) */
     struct in6_addr        cip;        /* DNS Client IP (v4/6) */
+    uint8_t                edns_flag;
+    uint8_t                rcip[48];
     struct _pdns_asset     *next;      /* Next dns asset */
     struct _pdns_asset     *prev;      /* Prev dns asset */
 } pdns_asset;
@@ -156,6 +158,16 @@ typedef struct _pdns_record {
     struct _pdns_record    *next;      /* Next dns record */
     struct _pdns_record    *prev;      /* Prev dns record */
 } pdns_record;
+
+typedef struct _pedns_data{
+   uint16_t opt_code;
+   uint16_t opt_length;
+   uint16_t af;
+   uint8_t  src_mask;
+   uint8_t  scope_mask;
+   uint8_t  ipdata[4];
+}pedns_data;
+
 
 /* Declare */
 int process_dns_answer (packetinfo *pi, ldns_pkt *decoded_dns);
