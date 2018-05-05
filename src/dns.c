@@ -604,7 +604,16 @@ void update_pdns_record_asset(packetinfo *pi, pdns_record *pr,
                 dlog("[*] DNS asset updated...\n");
                 if ((passet->last_seen.tv_sec -
                         passet->last_print.tv_sec) >= config.dnsprinttime)
+                {
+                    passet->edns_flag = 0;
+                    if (pi->edns_flag)
+                    {
+                        passet->edns_flag = 1;
+                        memset(passet->rcip, 0, sizeof(passet->rcip));
+                        memcpy(passet->rcip, pi->rcip, sizeof(passet->rcip));
+                    }
                     print_passet(pr, passet, passet->rr, NULL, 0);
+                }
                 return;
             }
         }

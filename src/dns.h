@@ -165,7 +165,7 @@ typedef struct _pedns_data{
    uint16_t af;
    uint8_t  src_mask;
    uint8_t  scope_mask;
-   uint8_t  ipdata[4];
+   uint8_t  ipdata[0];
 }pedns_data;
 
 
