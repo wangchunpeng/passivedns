@@ -1109,6 +1109,10 @@ void print_passet(pdns_record *l, pdns_asset *p, ldns_rr *rr,
                 offset += snprintf(output+offset, sizeof(buffer) - offset, "%s", p->rcip);
             else
                 offset += snprintf(output+offset, sizeof(buffer) - offset, "%s", ip_addr_c);
+            
+            if (offset != 0)
+                offset += snprintf(output+offset, sizeof(buffer) - offset, "%s", d);
+            offset += snprintf(output+offset, sizeof(buffer) - offset, "%d", p->edns_flag);
         }
 
         /* Print server IP */
